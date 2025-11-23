@@ -1,27 +1,36 @@
-## LINEフィットネスBOT ドキュメントセット  
+# ドキュメント体系
 
-この `spec/` ディレクトリには、LINEフィットネスBOT を開発・保守するために必要な仕様ドキュメントを機能別・目的別に整理して格納します。LLM でのコード生成や、チーム開発時の認識合わせ、後工程でのテスト・運用をスムーズに進めることを目的としています。
+本プロジェクトの仕様書・設計書は以下のディレクトリ構成で管理されています。
 
-### ファイル構成
+## 📂 00_requirements (要件定義)
+プロジェクトの目的、ターゲットユーザー、機能要件などを定義します。
+- [requirements.md](./00_requirements/requirements.md): 要件定義書 (旧: LINEフィットネスBOT要件定義書)
 
-| ファイル | 役割 |
-| --- | --- |
-| `service-overview.md` | サービスの目的・提供価値・ターゲットユーザーなど全体像を記載 |
-| `architecture.md` | システム構成図、コンポーネント責務、データフローを記載 |
-| `data-model.md` | DB スキーマ（ER図・テーブル定義）を記載 |
-| `api-spec.md` | LINE Messaging API / Supabase / LLM API との連携仕様を記載 |
-| `message-spec.md` | メッセージテンプレート、リッチメニュー設計、サンプル会話を記載 |
-| `environment.md` | 使用技術、開発環境セットアップ手順、Lint/Formatter 設定を記載 |
-| `test-ci.md` | テスト戦略、主要テストケース、CI/CD ワークフローを記載 |
-| `error-handling.md` | エラーハンドリング方針、フォールバック戦略を記載 |
-| `workflows/` | 機能ごとの詳細フロー（目標設定、トレーニング計画など）を格納 |
+## 📂 01_system_design (システム設計)
+アーキテクチャ、インフラ、共通の技術的決定事項を記述します。
+- [architecture.md](./01_system_design/architecture.md): 全体アーキテクチャ設計
+- [directory_structure.md](./01_system_design/directory_structure.md): ディレクトリ構成と責務
+- [environment.md](./01_system_design/environment.md): 環境変数とインフラ設定
+- [error_handling.md](./01_system_design/error_handling.md): エラーハンドリング方針
+- [test_ci.md](./01_system_design/test_ci.md): テスト戦略とCI/CD
 
-### 使い方
-1. 新規機能を追加する際は、まず `workflows/` 配下にフロードキュメントを追加・更新します。
-2. データベース変更があれば `data-model.md` を更新し、`architecture.md` に影響を反映します。
-3. 外部インターフェースを変える場合は `api-spec.md` と `message-spec.md` を更新します。
-4. コード生成やレビュー時は、関連ドキュメントを参照し齟齬がないか確認します。
+## 📂 02_data_model (データ設計)
+データベース設計、スキーマ定義、ER図を含みます。
+- [database_design.md](./02_data_model/database_design.md): データベース設計書
 
----
+## 📂 03_interface (インターフェース設計)
+API定義やLINEメッセージ形式などのインターフェース仕様です。
+- [api_spec.md](./03_interface/api_spec.md): 内部/外部 API仕様
+- [line_message_spec.md](./03_interface/line_message_spec.md): LINE Flex Message等のUI仕様
 
-> **NOTE:** 本 README はドキュメント全体のインデックスです。各詳細はリンク先の Markdown を参照してください。 
+## 📂 04_workflows (ワークフロー詳細)
+主要なユーザー体験ごとの詳細フロー定義です。
+- [goal-setting.md](./04_workflows/goal-setting.md): 目標設定フロー
+- [training-plan.md](./04_workflows/training-plan.md): トレーニング計画作成フロー
+- [record-progress.md](./04_workflows/record-progress.md): 記録・進捗管理フロー
+- [health-consultation.md](./04_workflows/health-consultation.md): 健康相談フロー
+- [todays-tasks.md](./04_workflows/todays-tasks.md): 今日のタスクフロー
+- [mypage.md](./04_workflows/mypage.md): マイページ・設定フロー
+
+## 📂 archive (アーカイブ)
+古いドキュメントや参考資料を保管しています。
