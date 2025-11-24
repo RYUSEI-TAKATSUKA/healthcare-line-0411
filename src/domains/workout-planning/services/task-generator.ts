@@ -26,12 +26,20 @@ export const generateDailyTasks = (payload: TrainingPlanCreatePayload): Generate
   ];
 };
 
-export const buildUpcomingDates = (startDateIso: string, count: number): string[] => {
+export const buildWeeklySpreadDates = (
+  startDateIso: string,
+  frequency: number,
+  weeks = 1
+): string[] => {
+  if (frequency <= 0) return [];
   const dates: string[] = [];
   const start = new Date(startDateIso);
-  for (let i = 0; i < count; i += 1) {
+  const totalDays = weeks * 7;
+  const gap = Math.max(1, Math.floor(totalDays / frequency));
+
+  for (let i = 0, day = 0; i < frequency && day < totalDays; i += 1, day += gap) {
     const d = new Date(start);
-    d.setDate(start.getDate() + i);
+    d.setDate(start.getDate() + day);
     dates.push(d.toISOString().slice(0, 10));
   }
   return dates;

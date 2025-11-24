@@ -1,6 +1,6 @@
 import { TrainingPlanCreatePayload } from '../repositories/training-plan-repository';
 import { WorkoutSessionCreatePayload } from '../repositories/workout-session-repository';
-import { generateDailyTasks, buildUpcomingDates } from './task-generator';
+import { generateDailyTasks, buildWeeklySpreadDates } from './task-generator';
 
 export const scheduleSessions = (
   planId: string,
@@ -8,7 +8,7 @@ export const scheduleSessions = (
 ): WorkoutSessionCreatePayload[] => {
   const tasks = generateDailyTasks(payload);
   const perWeek = payload.weeklyFrequency ?? 3;
-  const dates = buildUpcomingDates(payload.startDate, Math.max(perWeek, 1));
+  const dates = buildWeeklySpreadDates(payload.startDate, Math.max(perWeek, 1), 1);
 
   return dates.flatMap((scheduledDate) =>
     tasks.map((t) => ({
