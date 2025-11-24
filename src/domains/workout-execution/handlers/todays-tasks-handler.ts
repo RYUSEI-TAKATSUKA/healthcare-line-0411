@@ -1,6 +1,7 @@
 import { EventHandler } from 'src/application/mediator/handler';
 import { LineWebhookEvent } from 'src/types/line';
 import { buildNoTasksMessage, buildTasksPlaceholderMessage } from '../messages/todays-tasks';
+import { TaskViewRepository } from '../repositories/task-view-repository';
 
 const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
   type: 'message';
@@ -9,32 +10,39 @@ const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
 
 const keywords = ['今日のタスク', 'today', 'task', 'tasks', 'todo', 'タスク'];
 
-export const todaysTasksHandler: EventHandler = async (event, session) => {
-  if (!isTextEvent(event)) return null;
-  const text = event.message.text?.toLowerCase() ?? '';
-  if (!keywords.some((kw) => text.includes(kw.toLowerCase()))) return null;
+export const createTodaysTasksHandler =
+  (taskRepo: TaskViewRepository): EventHandler =>
+  async (event, session) => {
+    if (!isTextEvent(event)) return null;
+    const text = event.message.text?.toLowerCase() ?? '';
+    if (!keywords.some((kw) => text.includes(kw.toLowerCase()))) return null;
 
-  // TODO: fetch actual tasks from workout_sessions/workout_records
-  const hasTasks = false;
+    const userId =
+      ('source' in event && event.source && 'userId' in event.source && event.source.userId) ||
+      null;
+    if (!userId) return null;
 
-  if (!hasTasks) {
+    const today = new Date().toISOString().slice(0, 10);
+    const tasks = await taskRepo.findTodayTasks(userId, today);
+
+    if (!tasks.length) {
+      return {
+        messages: [buildNoTasksMessage()],
+        nextState: {
+          ...session,
+          currentFlow: 'workout_execution',
+          currentStep: 'show_tasks',
+        },
+      };
+    }
+
+    const titles = tasks.map((t) => t.title);
     return {
-      messages: [buildNoTasksMessage()],
+      messages: [buildTasksPlaceholderMessage(titles)],
       nextState: {
         ...session,
         currentFlow: 'workout_execution',
         currentStep: 'show_tasks',
       },
     };
-  }
-
-  const sampleTasks = ['ウォームアップ（10分ウォーキング）', 'スクワット 3x12', 'プランク 3x30秒'];
-  return {
-    messages: [buildTasksPlaceholderMessage(sampleTasks)],
-    nextState: {
-      ...session,
-      currentFlow: 'workout_execution',
-      currentStep: 'show_tasks',
-    },
   };
-};

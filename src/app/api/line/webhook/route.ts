@@ -20,6 +20,7 @@ import { createSupabaseClient } from 'src/infrastructure/supabase/client';
 import { SupabaseSessionStore } from 'src/infrastructure/supabase/session-store';
 import { SupabaseGoalRepository } from 'src/infrastructure/supabase/repositories/supabase-goal-repository';
 import { SupabaseTrainingPlanRepository } from 'src/infrastructure/supabase/repositories/supabase-training-plan-repository';
+import { SupabaseTaskViewRepository } from 'src/infrastructure/supabase/repositories/supabase-task-view-repository';
 import { LineWebhookBody } from 'src/types/line';
 import { OpenAiClient } from 'src/infrastructure/openai/openai-client';
 
@@ -49,6 +50,7 @@ const getMediator = (): EventMediator => {
   const sessionManager = new SessionManager(sessionStore);
   const goalRepository = new SupabaseGoalRepository(supabaseClient);
   const trainingPlanRepository = new SupabaseTrainingPlanRepository(supabaseClient);
+  const taskViewRepository = new SupabaseTaskViewRepository(supabaseClient);
 
   const openAiApiKey = process.env.OPENAI_API_KEY;
   const draftService = openAiApiKey
@@ -66,7 +68,7 @@ const getMediator = (): EventMediator => {
     planFrequencyHandler,
     planDurationHandler,
     createPlanConfirmHandler(trainingPlanRepository, goalRepository),
-    todaysTasksHandler,
+    createTodaysTasksHandler(taskViewRepository),
     textHandler,
   ]);
   return cachedMediator;
