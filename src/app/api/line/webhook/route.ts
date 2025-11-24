@@ -4,13 +4,16 @@ import { EventMediator } from 'src/application/mediator/event-mediator';
 import { textHandler } from 'src/application/mediator/handlers/text-handler';
 import { goalStartHandler } from 'src/domains/goal-setting/handlers/goal-start-handler';
 import { goalBaselineHandler } from 'src/domains/goal-setting/handlers/goal-baseline-handler';
-import { goalDetailHandler } from 'src/domains/goal-setting/handlers/goal-detail-handler';
-import { goalConfirmHandler } from 'src/domains/goal-setting/handlers/goal-confirm-handler';
+import { createGoalDetailHandler } from 'src/domains/goal-setting/handlers/goal-detail-handler';
+import { createGoalConfirmHandler } from 'src/domains/goal-setting/handlers/goal-confirm-handler';
+import { GoalDraftService } from 'src/domains/goal-setting/services/goal-draft-service';
 import { SessionManager } from 'src/application/session/session-manager';
 import { LineClient } from 'src/infrastructure/line/line-client';
 import { createSupabaseClient } from 'src/infrastructure/supabase/client';
 import { SupabaseSessionStore } from 'src/infrastructure/supabase/session-store';
+import { SupabaseGoalRepository } from 'src/infrastructure/supabase/repositories/supabase-goal-repository';
 import { LineWebhookBody } from 'src/types/line';
+import { OpenAiClient } from 'src/infrastructure/openai/openai-client';
 
 export const runtime = 'nodejs';
 
@@ -36,12 +39,18 @@ const getMediator = (): EventMediator => {
   const supabaseClient = createSupabaseClient();
   const sessionStore = new SupabaseSessionStore(supabaseClient);
   const sessionManager = new SessionManager(sessionStore);
+  const goalRepository = new SupabaseGoalRepository(supabaseClient);
+
+  const openAiApiKey = process.env.OPENAI_API_KEY;
+  const draftService = openAiApiKey
+    ? new GoalDraftService(new OpenAiClient(openAiApiKey))
+    : undefined;
 
   cachedMediator = new EventMediator(sessionManager, [
     goalStartHandler,
     goalBaselineHandler,
-    goalDetailHandler,
-    goalConfirmHandler,
+    createGoalDetailHandler(draftService),
+    createGoalConfirmHandler(goalRepository),
     textHandler,
   ]);
   return cachedMediator;

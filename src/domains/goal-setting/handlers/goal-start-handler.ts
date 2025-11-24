@@ -16,7 +16,7 @@ export const goalStartHandler: EventHandler = async (event, session) => {
   const text = normalize(event.message.text);
 
   // フロー未開始で「目標」「ダイエット」などのキーワードで誘導
-  const triggerKeywords = ['目標', 'ダイエット', '筋トレ', '痩せたい', 'goal'];
+  const triggerKeywords = ['目標', 'ダイエット', '筋トレ', '痩せたい', 'goal', 'plan', '設定'];
   const hasFlow = session.currentFlow === 'goal_setting';
 
   if (!hasFlow && !triggerKeywords.some((kw) => text.includes(kw))) {
