@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "test:unit": "NODE_PATH=. ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\"}' tests/unit/goal-setting/goal-handlers.test.ts",
+    "test:unit": "NODE_PATH=. ts-node --transpile-only --compiler-options '{\"module\":\"commonjs\"}' tests/unit/run.ts",
     "test:integration": "jest --config jest.integration.config.js",
     "test:e2e": "playwright test",
     "db:migrate": "prisma migrate dev",

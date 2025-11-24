@@ -12,11 +12,13 @@ import { planGoalConfirmHandler } from 'src/domains/workout-planning/handlers/pl
 import { planEnvironmentHandler } from 'src/domains/workout-planning/handlers/plan-environment-handler';
 import { planFrequencyHandler } from 'src/domains/workout-planning/handlers/plan-frequency-handler';
 import { planDurationHandler } from 'src/domains/workout-planning/handlers/plan-duration-handler';
+import { createPlanConfirmHandler } from 'src/domains/workout-planning/handlers/plan-confirm-handler';
 import { SessionManager } from 'src/application/session/session-manager';
 import { LineClient } from 'src/infrastructure/line/line-client';
 import { createSupabaseClient } from 'src/infrastructure/supabase/client';
 import { SupabaseSessionStore } from 'src/infrastructure/supabase/session-store';
 import { SupabaseGoalRepository } from 'src/infrastructure/supabase/repositories/supabase-goal-repository';
+import { SupabaseTrainingPlanRepository } from 'src/infrastructure/supabase/repositories/supabase-training-plan-repository';
 import { LineWebhookBody } from 'src/types/line';
 import { OpenAiClient } from 'src/infrastructure/openai/openai-client';
 
@@ -45,6 +47,7 @@ const getMediator = (): EventMediator => {
   const sessionStore = new SupabaseSessionStore(supabaseClient);
   const sessionManager = new SessionManager(sessionStore);
   const goalRepository = new SupabaseGoalRepository(supabaseClient);
+  const trainingPlanRepository = new SupabaseTrainingPlanRepository(supabaseClient);
 
   const openAiApiKey = process.env.OPENAI_API_KEY;
   const draftService = openAiApiKey
@@ -61,6 +64,7 @@ const getMediator = (): EventMediator => {
     planEnvironmentHandler,
     planFrequencyHandler,
     planDurationHandler,
+    createPlanConfirmHandler(trainingPlanRepository, goalRepository),
     textHandler,
   ]);
   return cachedMediator;
