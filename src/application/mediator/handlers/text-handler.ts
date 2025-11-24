@@ -25,27 +25,17 @@ export const textHandler: EventHandler = async (event, session) => {
     };
   }
 
-  // プレースホルダー: 目標設定フローへの誘導。
-  const flex = buildSimpleFlexMessage(
-    '目標設定をはじめましょう',
-    'あなたの目標に合わせてプランを作成します。進めますか？'
-  );
-
-  const messageWithQuickReply = withQuickReply(
-    {
-      type: 'flex',
-      altText: flex.altText,
-      contents: flex.contents,
-    },
-    buildYesNoQuickReply()
-  );
-
   return {
-    messages: [messageWithQuickReply],
-    nextState: {
-      ...session,
-      currentFlow: 'goal_setting',
-      currentStep: 'confirm_start',
-    },
+    messages: [
+      {
+        type: 'text',
+        text: [
+          'メニュー:',
+          '1) 目標設定を始める → 「目標」や「ダイエット」と送信してください',
+          '2) 質問だけする → このまま質問を入力してください',
+        ].join('\n'),
+      },
+    ],
+    nextState: session,
   };
 };
