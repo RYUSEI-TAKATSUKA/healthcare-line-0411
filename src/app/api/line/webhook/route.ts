@@ -8,6 +8,10 @@ import { createGoalDetailHandler } from 'src/domains/goal-setting/handlers/goal-
 import { createGoalConfirmHandler } from 'src/domains/goal-setting/handlers/goal-confirm-handler';
 import { GoalDraftService } from 'src/domains/goal-setting/services/goal-draft-service';
 import { planStartHandler } from 'src/domains/workout-planning/handlers/plan-start-handler';
+import { planGoalConfirmHandler } from 'src/domains/workout-planning/handlers/plan-goal-confirm-handler';
+import { planEnvironmentHandler } from 'src/domains/workout-planning/handlers/plan-environment-handler';
+import { planFrequencyHandler } from 'src/domains/workout-planning/handlers/plan-frequency-handler';
+import { planDurationHandler } from 'src/domains/workout-planning/handlers/plan-duration-handler';
 import { SessionManager } from 'src/application/session/session-manager';
 import { LineClient } from 'src/infrastructure/line/line-client';
 import { createSupabaseClient } from 'src/infrastructure/supabase/client';
@@ -53,6 +57,10 @@ const getMediator = (): EventMediator => {
     createGoalDetailHandler(draftService),
     createGoalConfirmHandler(goalRepository),
     planStartHandler,
+    planGoalConfirmHandler,
+    planEnvironmentHandler,
+    planFrequencyHandler,
+    planDurationHandler,
     textHandler,
   ]);
   return cachedMediator;

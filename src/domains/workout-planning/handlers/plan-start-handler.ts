@@ -9,7 +9,7 @@ const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
 
 const normalize = (text: string) => text.trim().toLowerCase();
 
-const planKeywords = ['プラン', '計画', 'today', 'menu', 'schedule', 'workout'];
+const planKeywords = ['プラン', '計画', 'today', 'menu', 'schedule', 'workout', 'タスク'];
 
 export const planStartHandler: EventHandler = async (event, session) => {
   if (!isTextEvent(event)) return null;
