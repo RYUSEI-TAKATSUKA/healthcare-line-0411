@@ -13,6 +13,7 @@ import { planEnvironmentHandler } from 'src/domains/workout-planning/handlers/pl
 import { planFrequencyHandler } from 'src/domains/workout-planning/handlers/plan-frequency-handler';
 import { planDurationHandler } from 'src/domains/workout-planning/handlers/plan-duration-handler';
 import { createPlanConfirmHandler } from 'src/domains/workout-planning/handlers/plan-confirm-handler';
+import { todaysTasksHandler } from 'src/domains/workout-execution/handlers/todays-tasks-handler';
 import { SessionManager } from 'src/application/session/session-manager';
 import { LineClient } from 'src/infrastructure/line/line-client';
 import { createSupabaseClient } from 'src/infrastructure/supabase/client';
@@ -65,6 +66,7 @@ const getMediator = (): EventMediator => {
     planFrequencyHandler,
     planDurationHandler,
     createPlanConfirmHandler(trainingPlanRepository, goalRepository),
+    todaysTasksHandler,
     textHandler,
   ]);
   return cachedMediator;
