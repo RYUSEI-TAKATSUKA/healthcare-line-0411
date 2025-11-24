@@ -7,5 +7,10 @@ export const buildNoTasksMessage = (): LineReplyMessage => ({
 
 export const buildTasksPlaceholderMessage = (tasks: string[]): LineReplyMessage => ({
   type: 'text',
-  text: ['本日のタスク一覧です:', ...tasks.map((t, i) => `${i + 1}. ${t}`)].join('\n'),
+  text: [
+    '本日のタスク一覧です:',
+    ...tasks.map((t, i) => `${i + 1}. ${t}`),
+    '',
+    '完了したら「完了」や「記録」などと送ってください。',
+  ].join('\n'),
 });
