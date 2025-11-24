@@ -1,6 +1,10 @@
 import { EventHandler } from 'src/application/mediator/handler';
 import { LineWebhookEvent } from 'src/types/line';
-import { WorkoutSessionCommandRepository } from '../repositories/workout-session-repository';
+import {
+  WorkoutSessionCommandRepository,
+  WorkoutSessionQueryRepository,
+} from '../repositories/workout-session-repository';
+import { WorkoutRecordRepository } from '../repositories/workout-record-repository';
 
 const keywords = ['完了', 'done', 'complete', '記録', '達成'];
 
@@ -15,7 +19,11 @@ const extractSessionId = (text: string): string | null => {
 };
 
 export const createTaskCompleteHandler =
-  (repo: WorkoutSessionCommandRepository): EventHandler =>
+  (
+    sessionQueryRepo: WorkoutSessionQueryRepository,
+    sessionCommandRepo: WorkoutSessionCommandRepository,
+    recordRepo: WorkoutRecordRepository
+  ): EventHandler =>
   async (event, session) => {
     if (!isTextEvent(event)) return null;
     const text = event.message.text?.toLowerCase() ?? '';
@@ -39,7 +47,20 @@ export const createTaskCompleteHandler =
     }
 
     try {
-      await repo.updateStatus({ sessionId, userId, status: 'completed' });
+      await sessionCommandRepo.updateStatus({ sessionId, userId, status: 'completed' });
+
+      const today = new Date().toISOString().slice(0, 10);
+      const sessions = await sessionQueryRepo.findByDate({ userId, dateIso: today });
+      const target = sessions.find((s) => s.id === sessionId);
+      if (target) {
+        await recordRepo.createRecord({
+          userId,
+          sessionId,
+          recordDate: today,
+          durationMinutes: target.durationMinutes,
+          workoutType: target.status === 'cardio' ? 'cardio' : 'strength',
+        });
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('[taskCompleteHandler] failed to update status', error);
