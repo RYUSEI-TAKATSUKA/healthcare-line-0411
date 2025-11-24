@@ -3,6 +3,7 @@ import { SessionManager } from '../session/session-manager';
 import { SessionState } from '../session/session-store';
 import { LineWebhookEvent } from '../../types/line';
 import { EventHandler, HandlerResult } from './handler';
+import { UserRepository } from '../../domains/shared/repositories/user-repository';
 
 const defaultHandler: EventHandler = async () => ({
   messages: [
@@ -18,19 +19,30 @@ export class EventMediator {
 
   constructor(
     private readonly sessionManager: SessionManager,
+    private readonly userRepository: UserRepository,
     handlers: EventHandler[] = []
   ) {
     this.handlers = handlers.length ? handlers : [defaultHandler];
   }
 
   async handle(event: LineWebhookEvent, lineClient: LineClient): Promise<void> {
-    const userId = lineClient.extractUserId(event);
-    if (!userId || !('replyToken' in event)) return;
+    const externalUserId = lineClient.extractUserId(event);
+    if (!externalUserId || !('replyToken' in event)) return;
+
+    const userId = await this.userRepository.findOrCreateByExternalId(externalUserId);
+
+    const eventWithInternalId: LineWebhookEvent = {
+      ...event,
+      source: {
+        ...(event as any).source,
+        userId,
+      },
+    };
 
     const session = await this.sessionManager.loadSession(userId);
     const result =
-      (await this.executeHandlers(event, session)) ??
-      (await defaultHandler(event, session));
+      (await this.executeHandlers(eventWithInternalId, session)) ??
+      (await defaultHandler(eventWithInternalId, session));
 
     if (!result) return;
 

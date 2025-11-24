@@ -28,6 +28,7 @@ import { createTaskCompleteHandler } from 'src/domains/workout-execution/handler
 import { createTodaysTasksHandler } from 'src/domains/workout-execution/handlers/todays-tasks-handler';
 import { SupabaseConversationRepository } from 'src/infrastructure/supabase/repositories/supabase-conversation-repository';
 import { PlanGenerationService } from 'src/domains/workout-planning/services/plan-generation-service';
+import { SupabaseUserRepository } from 'src/infrastructure/supabase/repositories/supabase-user-repository';
 
 export const runtime = 'nodejs';
 
@@ -52,6 +53,7 @@ const getMediator = (): EventMediator => {
   if (cachedMediator) return cachedMediator;
   const supabaseClient = createSupabaseClient();
   const sessionStore = new SupabaseSessionStore(supabaseClient);
+  const userRepository = new SupabaseUserRepository(supabaseClient);
   const sessionManager = new SessionManager(sessionStore);
   const goalRepository = new SupabaseGoalRepository(supabaseClient);
   const trainingPlanRepository = new SupabaseTrainingPlanRepository(supabaseClient);
@@ -68,7 +70,7 @@ const getMediator = (): EventMediator => {
     ? new PlanGenerationService(new OpenAiClient(openAiApiKey))
     : undefined;
 
-  cachedMediator = new EventMediator(sessionManager, [
+  cachedMediator = new EventMediator(sessionManager, userRepository, [
     goalStartHandler,
     goalBaselineHandler,
     createGoalDetailHandler(draftService),
