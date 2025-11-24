@@ -23,10 +23,16 @@
 
 ---
 
-## フェーズ1: 基盤整備（インフラ & 共通コンポーネント）
+## ✅ フェーズ1: 基盤整備（インフラ & 共通コンポーネント）
 1. **環境・設定**
    - [x] `.env.local` のテンプレート整備（`spec/01_system_design/environment.md`）
-   - [ ] Supabase プロジェクト作成 & RLSポリシー反映（`spec/02_data_model/database_design.md`）
+   - [x] Supabase プロジェクト作成 & RLSポリシー反映（`spec/02_data_model/database_design.md`）
+     - [x] プロジェクト "Healthcare-AI- 0411" 作成 (vdeduxscrgmimmlbitod)
+     - [x] 15テーブル + system_logs の初期スキーママイグレーション適用
+     - [x] RLSポリシー適用（user_id ベースのアクセス制御）
+     - [x] シードデータ準備（achievements 30件、settings 28件、llm_models 7件）
+     - [x] 接続確認テスト完了
+   - [x] 環境変数設定完了（.env.local）
 2. **Application/Interface 骨組み**
    - [x] `src/app/api/line/webhook/route.ts` のWebhooks受入口実装
    - [x] `application/mediator/` に EventMediator の初期クラスを配置
@@ -41,8 +47,15 @@
    - [x] Rich Menu Manager (`application/ui/rich-menu-manager.ts`)
 
 ### 成果物
-- 共通アダプターのユニットテスト
-- Dev環境でWebhook→Mediator→Sessionまでの疎通確認
+- [x] 共通アダプターの骨組み実装完了
+- [x] Supabase接続テスト成功（全16テーブル確認済み）
+- [ ] 共通アダプターのユニットテスト
+- [ ] Dev環境でWebhook→Mediator→Sessionまでの疎通確認
+
+### 次のアクション
+1. Supabase Dashboard > SQL Editor で `supabase/seed.sql` を実行してシードデータ投入
+2. ユニットテスト整備開始
+3. Goal Setting ドメイン実装開始
 
 ---
 

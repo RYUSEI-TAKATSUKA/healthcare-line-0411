@@ -26,8 +26,10 @@
     "@types/node": "^20.8.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
+    "dotenv": "^17.2.3",
     "eslint": "^8.50.0",
-    "eslint-config-next": "^13.5.0"
+    "eslint-config-next": "^13.5.0",
+    "ts-node": "^10.9.2"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -45,4 +47,4 @@
   ],
   "author": "Healthcare Line Bot Team",
   "license": "MIT"
-} 
+}

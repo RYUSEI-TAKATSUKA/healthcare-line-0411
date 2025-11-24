@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import { EventMediator } from 'src/application/mediator/event-mediator';
+import { textHandler } from 'src/application/mediator/handlers/text-handler';
 import { SessionManager } from 'src/application/session/session-manager';
 import { LineClient } from 'src/infrastructure/line/line-client';
 import { createSupabaseClient } from 'src/infrastructure/supabase/client';
@@ -32,7 +33,7 @@ const getMediator = (): EventMediator => {
   const sessionStore = new SupabaseSessionStore(supabaseClient);
   const sessionManager = new SessionManager(sessionStore);
 
-  cachedMediator = new EventMediator(sessionManager);
+  cachedMediator = new EventMediator(sessionManager, [textHandler]);
   return cachedMediator;
 };
 
