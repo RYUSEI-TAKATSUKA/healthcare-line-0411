@@ -10,11 +10,9 @@ const getEnv = (key: string): string => {
 
 export const createSupabaseClient = (): SupabaseClient => {
   const supabaseUrl = getEnv('SUPABASE_URL');
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_KEY ?? process.env.SUPABASE_ANON_KEY;
-
+  const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
   if (!supabaseKey) {
-    throw new Error('Missing SUPABASE_SERVICE_KEY or SUPABASE_ANON_KEY');
+    throw new Error('Missing SUPABASE_SERVICE_KEY (service role key is required due to RLS)');
   }
 
   return createClient(supabaseUrl, supabaseKey);
