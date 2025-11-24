@@ -10,6 +10,22 @@ const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
 
 const normalize = (text: string) => text.trim().toLowerCase();
 
+const inferGoalType = (text: string): GoalType => {
+  if (text.includes('減') || text.includes('痩') || text.includes('脂肪')) {
+    return 'weight_loss';
+  }
+  if (text.includes('筋') || text.includes('増') || text.includes('バルク')) {
+    return 'muscle_gain';
+  }
+  if (text.includes('走') || text.includes('マラソン') || text.includes('持久')) {
+    return 'endurance';
+  }
+  if (text.includes('柔軟') || text.includes('ストレッチ') || text.includes('ヨガ')) {
+    return 'flexibility';
+  }
+  return 'habit_formation';
+};
+
 export const createGoalConfirmHandler =
   (goalRepository: GoalRepository): EventHandler =>
   async (event, session) => {
@@ -41,7 +57,9 @@ export const createGoalConfirmHandler =
       }
 
       try {
-        const goalType: GoalType = 'habit_formation';
+        const goalType: GoalType = inferGoalType(
+          data.desiredOutcome ?? data.suggestedGoal ?? ''
+        );
         const startDate = new Date().toISOString().slice(0, 10);
         const targetDate = new Date(Date.now() + 84 * 24 * 60 * 60 * 1000) // +12週
           .toISOString()
