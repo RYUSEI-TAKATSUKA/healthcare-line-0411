@@ -23,4 +23,5 @@ export interface GoalSessionData {
   hasConfirmedStart?: boolean;
   baselineDescription?: string;
   desiredOutcome?: string;
+  suggestedGoal?: string;
 }

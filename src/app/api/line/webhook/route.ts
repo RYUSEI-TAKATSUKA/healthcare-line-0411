@@ -5,6 +5,7 @@ import { textHandler } from 'src/application/mediator/handlers/text-handler';
 import { goalStartHandler } from 'src/domains/goal-setting/handlers/goal-start-handler';
 import { goalBaselineHandler } from 'src/domains/goal-setting/handlers/goal-baseline-handler';
 import { goalDetailHandler } from 'src/domains/goal-setting/handlers/goal-detail-handler';
+import { goalConfirmHandler } from 'src/domains/goal-setting/handlers/goal-confirm-handler';
 import { SessionManager } from 'src/application/session/session-manager';
 import { LineClient } from 'src/infrastructure/line/line-client';
 import { createSupabaseClient } from 'src/infrastructure/supabase/client';
@@ -40,6 +41,7 @@ const getMediator = (): EventMediator => {
     goalStartHandler,
     goalBaselineHandler,
     goalDetailHandler,
+    goalConfirmHandler,
     textHandler,
   ]);
   return cachedMediator;
