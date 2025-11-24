@@ -2,6 +2,7 @@ import { EventHandler } from 'src/application/mediator/handler';
 import { LineWebhookEvent } from 'src/types/line';
 import { GoalSessionData, GoalType } from '../types';
 import { GoalRepository } from '../repositories/goal-repository';
+import { buildTargetMetrics } from '../utils/goal-metrics-parser';
 
 const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
   type: 'message';
@@ -60,6 +61,10 @@ export const createGoalConfirmHandler =
         const goalType: GoalType = inferGoalType(
           data.desiredOutcome ?? data.suggestedGoal ?? ''
         );
+        const targetMetrics =
+          data.baselineDescription && data.desiredOutcome
+            ? buildTargetMetrics(data.baselineDescription, data.desiredOutcome)
+            : null;
         const startDate = new Date().toISOString().slice(0, 10);
         const targetDate = new Date(Date.now() + 84 * 24 * 60 * 60 * 1000) // +12週
           .toISOString()
@@ -70,7 +75,7 @@ export const createGoalConfirmHandler =
           goalType,
           description: data.suggestedGoal ?? data.desiredOutcome ?? 'フィットネス目標',
           motivation: data.motivation,
-          targetMetrics: data.draft?.targetMetrics ?? null,
+          targetMetrics: targetMetrics ?? data.draft?.targetMetrics ?? null,
           startDate,
           targetDate,
         });

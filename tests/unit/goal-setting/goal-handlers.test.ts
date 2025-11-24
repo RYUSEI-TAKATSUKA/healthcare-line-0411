@@ -88,7 +88,8 @@ const run = async () => {
       currentStep: 'confirm_goal_draft',
       tempData: {
         goalSetting: {
-          desiredOutcome: '3ヶ月で5kg減量',
+          baselineDescription: '体重70kg 週2運動',
+          desiredOutcome: '3ヶ月で65kgまで減量',
           suggestedGoal: '初回目標案',
         },
       },
@@ -97,6 +98,7 @@ const run = async () => {
   assert.ok(confirmRes);
   assert.strictEqual(confirmRes?.nextState?.currentFlow, null);
   assert.strictEqual(repo.saved.length, 1);
+  assert.strictEqual(repo.saved[0].targetMetrics?.targetValue, 65);
 
   console.log('goal-handlers tests passed');
 };
