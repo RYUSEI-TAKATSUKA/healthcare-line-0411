@@ -22,8 +22,11 @@ import { SupabaseGoalRepository } from 'src/infrastructure/supabase/repositories
 import { SupabaseTrainingPlanRepository } from 'src/infrastructure/supabase/repositories/supabase-training-plan-repository';
 import { SupabaseTaskViewRepository } from 'src/infrastructure/supabase/repositories/supabase-task-view-repository';
 import { SupabaseWorkoutSessionRepository } from 'src/infrastructure/supabase/repositories/supabase-workout-session-repository';
+import { SupabaseWorkoutSessionQueryRepository } from 'src/infrastructure/supabase/repositories/supabase-workout-session-query-repository';
 import { LineWebhookBody } from 'src/types/line';
 import { OpenAiClient } from 'src/infrastructure/openai/openai-client';
+import { createTaskCompleteHandler } from 'src/domains/workout-execution/handlers/task-complete-handler';
+import { createTodaysTasksHandler } from 'src/domains/workout-execution/handlers/todays-tasks-handler';
 
 export const runtime = 'nodejs';
 
@@ -53,6 +56,7 @@ const getMediator = (): EventMediator => {
   const trainingPlanRepository = new SupabaseTrainingPlanRepository(supabaseClient);
   const taskViewRepository = new SupabaseTaskViewRepository(supabaseClient);
   const workoutSessionRepository = new SupabaseWorkoutSessionRepository(supabaseClient);
+  const workoutSessionQueryRepository = new SupabaseWorkoutSessionQueryRepository(supabaseClient);
 
   const openAiApiKey = process.env.OPENAI_API_KEY;
   const draftService = openAiApiKey
@@ -71,6 +75,8 @@ const getMediator = (): EventMediator => {
     planDurationHandler,
     createPlanConfirmHandler(trainingPlanRepository, goalRepository, workoutSessionRepository),
     createTodaysTasksHandler(taskViewRepository),
+    createTodaysTasksHandler(workoutSessionQueryRepository),
+    createTaskCompleteHandler(workoutSessionQueryRepository),
     textHandler,
   ]);
   return cachedMediator;

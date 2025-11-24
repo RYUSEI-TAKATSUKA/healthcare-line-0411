@@ -1,7 +1,7 @@
 import { EventHandler } from 'src/application/mediator/handler';
 import { LineWebhookEvent } from 'src/types/line';
 import { buildNoTasksMessage, buildTasksPlaceholderMessage } from '../messages/todays-tasks';
-import { TaskViewRepository } from '../repositories/task-view-repository';
+import { WorkoutSessionQueryRepository } from '../repositories/workout-session-repository';
 
 const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
   type: 'message';
@@ -11,7 +11,7 @@ const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
 const keywords = ['今日のタスク', 'today', 'task', 'tasks', 'todo', 'タスク'];
 
 export const createTodaysTasksHandler =
-  (taskRepo: TaskViewRepository): EventHandler =>
+  (taskRepo: WorkoutSessionQueryRepository): EventHandler =>
   async (event, session) => {
     if (!isTextEvent(event)) return null;
     const text = event.message.text?.toLowerCase() ?? '';
@@ -23,7 +23,7 @@ export const createTodaysTasksHandler =
     if (!userId) return null;
 
     const today = new Date().toISOString().slice(0, 10);
-    const tasks = await taskRepo.findTodayTasks(userId, today);
+    const tasks = await taskRepo.findByDate({ userId, dateIso: today });
 
     if (!tasks.length) {
       return {
@@ -36,7 +36,7 @@ export const createTodaysTasksHandler =
       };
     }
 
-    const titles = tasks.map((t) => t.title);
+    const titles = tasks.map((t) => ({ id: t.id, title: t.name }));
     return {
       messages: [buildTasksPlaceholderMessage(titles)],
       nextState: {

@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import assert from 'node:assert';
 import { createTodaysTasksHandler } from '../../../src/domains/workout-execution/handlers/todays-tasks-handler';
-import { TaskViewRepository } from '../../../src/domains/workout-execution/repositories/task-view-repository';
+import { WorkoutSessionQueryRepository } from '../../../src/domains/workout-execution/repositories/workout-session-repository';
 
 const createTextEvent = (text: string) => ({
   type: 'message' as const,
@@ -17,9 +17,9 @@ const defaultSession = () => ({
   tempData: {},
 });
 
-class MemoryTaskRepo implements TaskViewRepository {
+class MemoryTaskRepo implements WorkoutSessionQueryRepository {
   constructor(private readonly tasks: any[]) {}
-  async findTodayTasks(): Promise<any[]> {
+  async findByDate(): Promise<any[]> {
     return this.tasks;
   }
 }
