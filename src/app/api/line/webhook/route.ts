@@ -7,6 +7,7 @@ import { goalBaselineHandler } from 'src/domains/goal-setting/handlers/goal-base
 import { createGoalDetailHandler } from 'src/domains/goal-setting/handlers/goal-detail-handler';
 import { createGoalConfirmHandler } from 'src/domains/goal-setting/handlers/goal-confirm-handler';
 import { GoalDraftService } from 'src/domains/goal-setting/services/goal-draft-service';
+import { planStartHandler } from 'src/domains/workout-planning/handlers/plan-start-handler';
 import { SessionManager } from 'src/application/session/session-manager';
 import { LineClient } from 'src/infrastructure/line/line-client';
 import { createSupabaseClient } from 'src/infrastructure/supabase/client';
@@ -51,6 +52,7 @@ const getMediator = (): EventMediator => {
     goalBaselineHandler,
     createGoalDetailHandler(draftService),
     createGoalConfirmHandler(goalRepository),
+    planStartHandler,
     textHandler,
   ]);
   return cachedMediator;
