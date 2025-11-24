@@ -4,7 +4,7 @@ import { TrainingPlanRepository } from '../repositories/training-plan-repository
 import { PlanSessionData } from '../types';
 import { GoalRepository } from '../../goal-setting/repositories/goal-repository';
 import { WorkoutSessionRepository } from '../repositories/workout-session-repository';
-import { generateDailyTasks } from '../services/task-generator';
+import { buildUpcomingDates, generateDailyTasks } from '../services/task-generator';
 
 const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
   type: 'message';
@@ -84,16 +84,19 @@ export const createPlanConfirmHandler =
         planType: 'custom',
       } as any);
 
-      const todayIso = new Date().toISOString().slice(0, 10);
+      const perWeek = planData.weeklyFrequency ?? 3;
+      const dates = buildUpcomingDates(startDate, Math.max(perWeek, 1));
       await workoutSessionRepo.createSessions(
-        tasks.map((t) => ({
-          planId,
-          userId,
-          name: t.title,
-          scheduledDate: todayIso,
-          durationMinutes: t.durationMinutes,
-          sessionType: t.sessionType,
-        }))
+        dates.flatMap((scheduledDate) =>
+          tasks.map((t) => ({
+            planId,
+            userId,
+            name: t.title,
+            scheduledDate,
+            durationMinutes: t.durationMinutes,
+            sessionType: t.sessionType,
+          }))
+        )
       );
     } catch (error) {
       // eslint-disable-next-line no-console

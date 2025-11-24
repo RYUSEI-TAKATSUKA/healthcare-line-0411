@@ -134,7 +134,7 @@ const run = async () => {
   assert.strictEqual(saveRes?.nextState?.currentFlow, null);
   assert.strictEqual(planRepo.saved.length, 1);
   assert.strictEqual(planRepo.saved[0].goalId, 'goal-1');
-  assert.strictEqual(sessionRepo.saved.length > 0, true);
+  assert.strictEqual(sessionRepo.saved.length, 3 * 2); // 3日分 x 2タスク/日
 
   console.log('plan-handlers tests passed');
 };

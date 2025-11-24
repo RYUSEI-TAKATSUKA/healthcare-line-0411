@@ -7,9 +7,7 @@ export type GeneratedTask = {
   sessionType?: string;
 };
 
-export const generateDailyTasks = (
-  payload: TrainingPlanCreatePayload
-): GeneratedTask[] => {
+export const generateDailyTasks = (payload: TrainingPlanCreatePayload): GeneratedTask[] => {
   const baseDuration = payload.sessionDurationMinutes ?? 30;
   const env = payload.environment.toLowerCase();
   const isGym = env.includes('ジム') || env.includes('gym');
@@ -26,4 +24,15 @@ export const generateDailyTasks = (
       sessionType: 'cardio',
     },
   ];
+};
+
+export const buildUpcomingDates = (startDateIso: string, count: number): string[] => {
+  const dates: string[] = [];
+  const start = new Date(startDateIso);
+  for (let i = 0; i < count; i += 1) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
+    dates.push(d.toISOString().slice(0, 10));
+  }
+  return dates;
 };
