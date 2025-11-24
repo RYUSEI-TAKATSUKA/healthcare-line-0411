@@ -19,6 +19,11 @@ export const goalStartHandler: EventHandler = async (event, session) => {
   const triggerKeywords = ['目標', 'ダイエット', '筋トレ', '痩せたい', 'goal', 'plan', '設定'];
   const hasFlow = session.currentFlow === 'goal_setting';
 
+  // 進行中で別ステップなら他ハンドラーに委譲
+  if (hasFlow && session.currentStep !== 'confirm_start') {
+    return null;
+  }
+
   if (!hasFlow && !triggerKeywords.some((kw) => text.includes(kw))) {
     return null;
   }
