@@ -4,6 +4,7 @@ import { TrainingPlanCreatePayload } from '../repositories/training-plan-reposit
 export type GeneratedTask = {
   title: string;
   durationMinutes: number;
+  sessionType?: string;
 };
 
 export const generateDailyTasks = (
@@ -17,10 +18,12 @@ export const generateDailyTasks = (
     {
       title: isGym ? 'ジム：全身サーキット' : '自宅：全身サーキット',
       durationMinutes: baseDuration,
+      sessionType: 'strength',
     },
     {
       title: '有酸素 10分（ウォーキングまたはバイク）',
       durationMinutes: 10,
+      sessionType: 'cardio',
     },
   ];
 };

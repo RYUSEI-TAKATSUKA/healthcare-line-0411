@@ -3,6 +3,8 @@ import { LineWebhookEvent } from 'src/types/line';
 import { TrainingPlanRepository } from '../repositories/training-plan-repository';
 import { PlanSessionData } from '../types';
 import { GoalRepository } from '../../goal-setting/repositories/goal-repository';
+import { WorkoutSessionRepository } from '../repositories/workout-session-repository';
+import { generateDailyTasks } from '../services/task-generator';
 
 const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
   type: 'message';
@@ -12,7 +14,11 @@ const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
 const normalize = (text: string) => text.trim().toLowerCase();
 
 export const createPlanConfirmHandler =
-  (planRepo: TrainingPlanRepository, goalRepo: GoalRepository): EventHandler =>
+  (
+    planRepo: TrainingPlanRepository,
+    goalRepo: GoalRepository,
+    workoutSessionRepo: WorkoutSessionRepository
+  ): EventHandler =>
   async (event, session) => {
     if (!isTextEvent(event)) return null;
     if (session.currentFlow !== 'workout_planning' || session.currentStep !== 'confirm_plan_inputs') {
@@ -53,7 +59,7 @@ export const createPlanConfirmHandler =
 
       const latestGoal = await goalRepo.findLatestActiveGoal(userId);
 
-      await planRepo.createTrainingPlan({
+      const planId = await planRepo.createTrainingPlan({
         userId,
         goalId: latestGoal?.id ?? null,
         name: 'パーソナライズドプラン',
@@ -64,6 +70,31 @@ export const createPlanConfirmHandler =
         startDate,
         endDate,
       });
+
+      const tasks = generateDailyTasks({
+        userId,
+        goalId: latestGoal?.id ?? null,
+        name: 'パーソナライズドプラン',
+        description: latestGoal?.description ?? '最近の目標に基づくプラン',
+        environment: planData.environment ?? 'unspecified',
+        weeklyFrequency: planData.weeklyFrequency ?? null,
+        sessionDurationMinutes: planData.sessionDurationMinutes ?? null,
+        startDate,
+        endDate,
+        planType: 'custom',
+      } as any);
+
+      const todayIso = new Date().toISOString().slice(0, 10);
+      await workoutSessionRepo.createSessions(
+        tasks.map((t) => ({
+          planId,
+          userId,
+          name: t.title,
+          scheduledDate: todayIso,
+          durationMinutes: t.durationMinutes,
+          sessionType: t.sessionType,
+        }))
+      );
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('[planConfirmHandler] failed to save plan', error);

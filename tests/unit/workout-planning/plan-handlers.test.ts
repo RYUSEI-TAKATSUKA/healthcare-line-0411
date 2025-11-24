@@ -8,6 +8,7 @@ import { planDurationHandler } from '../../../src/domains/workout-planning/handl
 import { createPlanConfirmHandler } from '../../../src/domains/workout-planning/handlers/plan-confirm-handler';
 import { TrainingPlanRepository } from '../../../src/domains/workout-planning/repositories/training-plan-repository';
 import { GoalRepository } from '../../../src/domains/goal-setting/repositories/goal-repository';
+import { WorkoutSessionRepository } from '../../../src/domains/workout-planning/repositories/workout-session-repository';
 
 const createTextEvent = (text: string) => ({
   type: 'message' as const,
@@ -41,6 +42,13 @@ class MemoryGoalRepo implements GoalRepository {
   }
   async findLatestActiveGoal(): Promise<{ id: string; description: string } | null> {
     return this.latest;
+  }
+}
+
+class MemorySessionRepo implements WorkoutSessionRepository {
+  public saved: any[] = [];
+  async createSessions(payloads: any[]): Promise<void> {
+    this.saved.push(...payloads);
   }
 }
 
@@ -102,7 +110,12 @@ const run = async () => {
   // confirm and save plan
   const planRepo = new MemoryPlanRepo();
   const goalRepo = new MemoryGoalRepo();
-  const confirmHandler = createPlanConfirmHandler(planRepo as any, goalRepo as any);
+  const sessionRepo = new MemorySessionRepo();
+  const confirmHandler = createPlanConfirmHandler(
+    planRepo as any,
+    goalRepo as any,
+    sessionRepo as any
+  );
   const saveRes = await confirmHandler(
     createTextEvent('承認') as any,
     {
@@ -121,6 +134,7 @@ const run = async () => {
   assert.strictEqual(saveRes?.nextState?.currentFlow, null);
   assert.strictEqual(planRepo.saved.length, 1);
   assert.strictEqual(planRepo.saved[0].goalId, 'goal-1');
+  assert.strictEqual(sessionRepo.saved.length > 0, true);
 
   console.log('plan-handlers tests passed');
 };

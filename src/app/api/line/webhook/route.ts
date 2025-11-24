@@ -13,7 +13,7 @@ import { planEnvironmentHandler } from 'src/domains/workout-planning/handlers/pl
 import { planFrequencyHandler } from 'src/domains/workout-planning/handlers/plan-frequency-handler';
 import { planDurationHandler } from 'src/domains/workout-planning/handlers/plan-duration-handler';
 import { createPlanConfirmHandler } from 'src/domains/workout-planning/handlers/plan-confirm-handler';
-import { todaysTasksHandler } from 'src/domains/workout-execution/handlers/todays-tasks-handler';
+import { createTodaysTasksHandler } from 'src/domains/workout-execution/handlers/todays-tasks-handler';
 import { SessionManager } from 'src/application/session/session-manager';
 import { LineClient } from 'src/infrastructure/line/line-client';
 import { createSupabaseClient } from 'src/infrastructure/supabase/client';
@@ -21,6 +21,7 @@ import { SupabaseSessionStore } from 'src/infrastructure/supabase/session-store'
 import { SupabaseGoalRepository } from 'src/infrastructure/supabase/repositories/supabase-goal-repository';
 import { SupabaseTrainingPlanRepository } from 'src/infrastructure/supabase/repositories/supabase-training-plan-repository';
 import { SupabaseTaskViewRepository } from 'src/infrastructure/supabase/repositories/supabase-task-view-repository';
+import { SupabaseWorkoutSessionRepository } from 'src/infrastructure/supabase/repositories/supabase-workout-session-repository';
 import { LineWebhookBody } from 'src/types/line';
 import { OpenAiClient } from 'src/infrastructure/openai/openai-client';
 
@@ -51,6 +52,7 @@ const getMediator = (): EventMediator => {
   const goalRepository = new SupabaseGoalRepository(supabaseClient);
   const trainingPlanRepository = new SupabaseTrainingPlanRepository(supabaseClient);
   const taskViewRepository = new SupabaseTaskViewRepository(supabaseClient);
+  const workoutSessionRepository = new SupabaseWorkoutSessionRepository(supabaseClient);
 
   const openAiApiKey = process.env.OPENAI_API_KEY;
   const draftService = openAiApiKey
@@ -67,7 +69,7 @@ const getMediator = (): EventMediator => {
     planEnvironmentHandler,
     planFrequencyHandler,
     planDurationHandler,
-    createPlanConfirmHandler(trainingPlanRepository, goalRepository),
+    createPlanConfirmHandler(trainingPlanRepository, goalRepository, workoutSessionRepository),
     createTodaysTasksHandler(taskViewRepository),
     textHandler,
   ]);
