@@ -4,7 +4,8 @@ import { TrainingPlanRepository } from '../repositories/training-plan-repository
 import { PlanSessionData } from '../types';
 import { GoalRepository } from '../../goal-setting/repositories/goal-repository';
 import { WorkoutSessionRepository } from '../repositories/workout-session-repository';
-import { buildUpcomingDates, generateDailyTasks } from '../services/task-generator';
+import { scheduleSessions } from '../services/session-scheduler';
+import { generateDailyTasks } from '../services/task-generator';
 
 const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
   type: 'message';
@@ -84,20 +85,20 @@ export const createPlanConfirmHandler =
         planType: 'custom',
       } as any);
 
-      const perWeek = planData.weeklyFrequency ?? 3;
-      const dates = buildUpcomingDates(startDate, Math.max(perWeek, 1));
-      await workoutSessionRepo.createSessions(
-        dates.flatMap((scheduledDate) =>
-          tasks.map((t) => ({
-            planId,
-            userId,
-            name: t.title,
-            scheduledDate,
-            durationMinutes: t.durationMinutes,
-            sessionType: t.sessionType,
-          }))
-        )
-      );
+      const sessionPayloads = scheduleSessions(planId, {
+        userId,
+        goalId: latestGoal?.id ?? null,
+        name: 'パーソナライズドプラン',
+        description: latestGoal?.description ?? '最近の目標に基づくプラン',
+        environment: planData.environment ?? 'unspecified',
+        weeklyFrequency: planData.weeklyFrequency ?? null,
+        sessionDurationMinutes: planData.sessionDurationMinutes ?? null,
+        startDate,
+        endDate,
+        planType: 'custom',
+      } as any);
+
+      await workoutSessionRepo.createSessions(sessionPayloads);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('[planConfirmHandler] failed to save plan', error);
