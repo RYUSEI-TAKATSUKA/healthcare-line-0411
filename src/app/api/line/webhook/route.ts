@@ -28,6 +28,8 @@ import { LineWebhookBody } from 'src/types/line';
 import { OpenAiClient } from 'src/infrastructure/openai/openai-client';
 import { createTaskCompleteHandler } from 'src/domains/workout-execution/handlers/task-complete-handler';
 import { createTodaysTasksHandler } from 'src/domains/workout-execution/handlers/todays-tasks-handler';
+import { SupabaseConversationRepository } from 'src/infrastructure/supabase/repositories/supabase-conversation-repository';
+import { PlanGenerationService } from 'src/domains/workout-planning/services/plan-generation-service';
 
 export const runtime = 'nodejs';
 
@@ -59,10 +61,14 @@ const getMediator = (): EventMediator => {
   const workoutSessionRepository = new SupabaseWorkoutSessionRepository(supabaseClient);
   const workoutSessionQueryRepository = new SupabaseWorkoutSessionQueryRepository(supabaseClient);
   const workoutRecordRepository = new SupabaseWorkoutRecordRepository(supabaseClient);
+  const conversationRepository = new SupabaseConversationRepository(supabaseClient);
 
   const openAiApiKey = process.env.OPENAI_API_KEY;
   const draftService = openAiApiKey
     ? new GoalDraftService(new OpenAiClient(openAiApiKey))
+    : undefined;
+  const planGenerator = openAiApiKey
+    ? new PlanGenerationService(new OpenAiClient(openAiApiKey))
     : undefined;
 
   cachedMediator = new EventMediator(sessionManager, [
@@ -75,7 +81,13 @@ const getMediator = (): EventMediator => {
     planEnvironmentHandler,
     planFrequencyHandler,
     planDurationHandler,
-    createPlanConfirmHandler(trainingPlanRepository, goalRepository, workoutSessionRepository),
+    createPlanConfirmHandler(
+      trainingPlanRepository,
+      goalRepository,
+      workoutSessionRepository,
+      planGenerator,
+      conversationRepository
+    ),
     createTodaysTasksHandler(taskViewRepository),
     createTodaysTasksHandler(workoutSessionQueryRepository),
     createTaskCompleteHandler(

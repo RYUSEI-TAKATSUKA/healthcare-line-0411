@@ -7,6 +7,7 @@ import { WorkoutSessionRepository } from '../repositories/workout-session-reposi
 import { scheduleSessions } from '../services/session-scheduler';
 import { generateDailyTasks } from '../services/task-generator';
 import { ConversationRepository } from '../../shared/repositories/conversation-repository';
+import { PlanGenerationService } from '../services/plan-generation-service';
 
 const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
   type: 'message';
@@ -20,6 +21,7 @@ export const createPlanConfirmHandler =
     planRepo: TrainingPlanRepository,
     goalRepo: GoalRepository,
     workoutSessionRepo: WorkoutSessionRepository,
+    planGenerator?: PlanGenerationService,
     conversationRepo?: ConversationRepository
   ): EventHandler =>
   async (event, session) => {
@@ -62,11 +64,21 @@ export const createPlanConfirmHandler =
 
       const latestGoal = await goalRepo.findLatestActiveGoal(userId);
 
+      const planDescription =
+        (planGenerator &&
+          (await planGenerator.generatePlanDescription({
+            goalDescription: latestGoal?.description ?? 'フィットネス目標',
+            environment: planData.environment ?? 'unspecified',
+            weeklyFrequency: planData.weeklyFrequency ?? null,
+            sessionDurationMinutes: planData.sessionDurationMinutes ?? null,
+          }))) ??
+        (latestGoal?.description ?? '最近の目標に基づくプラン');
+
       const planId = await planRepo.createTrainingPlan({
         userId,
         goalId: latestGoal?.id ?? null,
         name: 'パーソナライズドプラン',
-        description: latestGoal?.description ?? '最近の目標に基づくプラン',
+        description: planDescription,
         environment: planData.environment ?? 'unspecified',
         weeklyFrequency: planData.weeklyFrequency ?? null,
         sessionDurationMinutes: planData.sessionDurationMinutes ?? null,
