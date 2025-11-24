@@ -12,11 +12,7 @@ export class SupabaseSessionStore implements SessionStore {
   constructor(private readonly client: SupabaseClient) {}
 
   async getSession(userId: string): Promise<SessionState | null> {
-    const { data, error } = await this.client
-      .from<SessionRecord>(TABLE_NAME)
-      .select('*')
-      .eq('user_id', userId)
-      .single();
+    const { data, error } = await this.client.from(TABLE_NAME).select('*').eq('user_id', userId).single();
 
     if (error) {
       if (

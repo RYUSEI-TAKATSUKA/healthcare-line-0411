@@ -13,14 +13,12 @@ import { planEnvironmentHandler } from 'src/domains/workout-planning/handlers/pl
 import { planFrequencyHandler } from 'src/domains/workout-planning/handlers/plan-frequency-handler';
 import { planDurationHandler } from 'src/domains/workout-planning/handlers/plan-duration-handler';
 import { createPlanConfirmHandler } from 'src/domains/workout-planning/handlers/plan-confirm-handler';
-import { createTodaysTasksHandler } from 'src/domains/workout-execution/handlers/todays-tasks-handler';
 import { SessionManager } from 'src/application/session/session-manager';
 import { LineClient } from 'src/infrastructure/line/line-client';
 import { createSupabaseClient } from 'src/infrastructure/supabase/client';
 import { SupabaseSessionStore } from 'src/infrastructure/supabase/session-store';
 import { SupabaseGoalRepository } from 'src/infrastructure/supabase/repositories/supabase-goal-repository';
 import { SupabaseTrainingPlanRepository } from 'src/infrastructure/supabase/repositories/supabase-training-plan-repository';
-import { SupabaseTaskViewRepository } from 'src/infrastructure/supabase/repositories/supabase-task-view-repository';
 import { SupabaseWorkoutSessionRepository } from 'src/infrastructure/supabase/repositories/supabase-workout-session-repository';
 import { SupabaseWorkoutSessionQueryRepository } from 'src/infrastructure/supabase/repositories/supabase-workout-session-query-repository';
 import { SupabaseWorkoutRecordRepository } from 'src/infrastructure/supabase/repositories/supabase-workout-record-repository';
@@ -57,7 +55,6 @@ const getMediator = (): EventMediator => {
   const sessionManager = new SessionManager(sessionStore);
   const goalRepository = new SupabaseGoalRepository(supabaseClient);
   const trainingPlanRepository = new SupabaseTrainingPlanRepository(supabaseClient);
-  const taskViewRepository = new SupabaseTaskViewRepository(supabaseClient);
   const workoutSessionRepository = new SupabaseWorkoutSessionRepository(supabaseClient);
   const workoutSessionQueryRepository = new SupabaseWorkoutSessionQueryRepository(supabaseClient);
   const workoutRecordRepository = new SupabaseWorkoutRecordRepository(supabaseClient);
@@ -88,7 +85,6 @@ const getMediator = (): EventMediator => {
       planGenerator,
       conversationRepository
     ),
-    createTodaysTasksHandler(taskViewRepository),
     createTodaysTasksHandler(workoutSessionQueryRepository),
     createTaskCompleteHandler(
       workoutSessionQueryRepository,

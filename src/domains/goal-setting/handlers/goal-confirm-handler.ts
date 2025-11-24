@@ -75,7 +75,7 @@ export const createGoalConfirmHandler =
           userId,
           goalType,
           description: data.suggestedGoal ?? data.desiredOutcome ?? 'フィットネス目標',
-          motivation: data.motivation,
+          motivation: data.draft?.motivation,
           targetMetrics: targetMetrics ?? data.draft?.targetMetrics ?? null,
           startDate,
           targetDate,

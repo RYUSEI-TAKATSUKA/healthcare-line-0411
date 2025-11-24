@@ -27,6 +27,12 @@ class MemoryGoalRepository implements GoalRepository {
   async createGoal(payload: any): Promise<void> {
     this.saved.push(payload);
   }
+
+  async findLatestActiveGoal(
+    _userId: string
+  ): Promise<{ id: string; description: string } | null> {
+    return null;
+  }
 }
 
 const run = async () => {

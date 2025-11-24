@@ -53,12 +53,16 @@ export const createTaskCompleteHandler =
       const sessions = await sessionQueryRepo.findByDate({ userId, dateIso: today });
       const target = sessions.find((s) => s.id === sessionId);
       if (target) {
+        const lowerName = target.name?.toLowerCase?.() ?? '';
+        const workoutType = lowerName.includes('run') || lowerName.includes('cardio')
+          ? 'cardio'
+          : 'strength';
         await recordRepo.createRecord({
           userId,
           sessionId,
           recordDate: today,
           durationMinutes: target.durationMinutes,
-          workoutType: target.status === 'cardio' ? 'cardio' : 'strength',
+          workoutType,
         });
       }
     } catch (error) {

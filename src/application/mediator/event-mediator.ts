@@ -32,6 +32,8 @@ export class EventMediator {
       (await this.executeHandlers(event, session)) ??
       (await defaultHandler(event, session));
 
+    if (!result) return;
+
     await lineClient.replyMessage(event.replyToken, result.messages);
     await this.sessionManager.saveSession(userId, result.nextState ?? session);
   }
