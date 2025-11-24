@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { EventMediator } from 'src/application/mediator/event-mediator';
 import { textHandler } from 'src/application/mediator/handlers/text-handler';
 import { goalStartHandler } from 'src/domains/goal-setting/handlers/goal-start-handler';
+import { goalBaselineHandler } from 'src/domains/goal-setting/handlers/goal-baseline-handler';
+import { goalDetailHandler } from 'src/domains/goal-setting/handlers/goal-detail-handler';
 import { SessionManager } from 'src/application/session/session-manager';
 import { LineClient } from 'src/infrastructure/line/line-client';
 import { createSupabaseClient } from 'src/infrastructure/supabase/client';
@@ -36,6 +38,8 @@ const getMediator = (): EventMediator => {
 
   cachedMediator = new EventMediator(sessionManager, [
     goalStartHandler,
+    goalBaselineHandler,
+    goalDetailHandler,
     textHandler,
   ]);
   return cachedMediator;

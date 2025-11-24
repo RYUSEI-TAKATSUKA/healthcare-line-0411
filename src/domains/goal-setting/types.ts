@@ -21,4 +21,6 @@ export interface GoalDraft {
 export interface GoalSessionData {
   draft?: GoalDraft;
   hasConfirmedStart?: boolean;
+  baselineDescription?: string;
+  desiredOutcome?: string;
 }

@@ -23,9 +23,8 @@ export const goalStartHandler: EventHandler = async (event, session) => {
     return null;
   }
 
-  const sessionData: GoalSessionData = {
-    ...(session.tempData.goalSetting as GoalSessionData | undefined),
-  };
+  const sessionData: GoalSessionData =
+    (session.tempData.goalSetting as GoalSessionData | undefined) ?? {};
 
   // 進行中の確認ステップ
   if (session.currentFlow === 'goal_setting' && session.currentStep === 'confirm_start') {
