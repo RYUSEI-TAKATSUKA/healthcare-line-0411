@@ -6,6 +6,7 @@ import { GoalRepository } from '../../goal-setting/repositories/goal-repository'
 import { WorkoutSessionRepository } from '../repositories/workout-session-repository';
 import { scheduleSessions } from '../services/session-scheduler';
 import { generateDailyTasks } from '../services/task-generator';
+import { ConversationRepository } from '../../shared/repositories/conversation-repository';
 
 const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
   type: 'message';
@@ -18,7 +19,8 @@ export const createPlanConfirmHandler =
   (
     planRepo: TrainingPlanRepository,
     goalRepo: GoalRepository,
-    workoutSessionRepo: WorkoutSessionRepository
+    workoutSessionRepo: WorkoutSessionRepository,
+    conversationRepo?: ConversationRepository
   ): EventHandler =>
   async (event, session) => {
     if (!isTextEvent(event)) return null;
@@ -85,20 +87,36 @@ export const createPlanConfirmHandler =
         planType: 'custom',
       } as any);
 
-      const sessionPayloads = scheduleSessions(planId, {
-        userId,
-        goalId: latestGoal?.id ?? null,
-        name: 'パーソナライズドプラン',
-        description: latestGoal?.description ?? '最近の目標に基づくプラン',
-        environment: planData.environment ?? 'unspecified',
-        weeklyFrequency: planData.weeklyFrequency ?? null,
-        sessionDurationMinutes: planData.sessionDurationMinutes ?? null,
-        startDate,
-        endDate,
-        planType: 'custom',
-      } as any);
+      const sessionPayloads = scheduleSessions(
+        planId,
+        {
+          userId,
+          goalId: latestGoal?.id ?? null,
+          name: 'パーソナライズドプラン',
+          description: latestGoal?.description ?? '最近の目標に基づくプラン',
+          environment: planData.environment ?? 'unspecified',
+          weeklyFrequency: planData.weeklyFrequency ?? null,
+          sessionDurationMinutes: planData.sessionDurationMinutes ?? null,
+          startDate,
+          endDate,
+          planType: 'custom',
+        } as any,
+        4
+      );
 
       await workoutSessionRepo.createSessions(sessionPayloads);
+
+      if (conversationRepo) {
+        await conversationRepo.saveMessage({
+          userId,
+          messageType: 'system',
+          botMessage: 'training_plan_saved',
+          contextData: {
+            planId,
+            sessionCount: sessionPayloads.length,
+          },
+        });
+      }
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('[planConfirmHandler] failed to save plan', error);

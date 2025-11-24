@@ -34,13 +34,16 @@ export const buildWeeklySpreadDates = (
   if (frequency <= 0) return [];
   const dates: string[] = [];
   const start = new Date(startDateIso);
-  const totalDays = weeks * 7;
-  const gap = Math.max(1, Math.floor(totalDays / frequency));
 
-  for (let i = 0, day = 0; i < frequency && day < totalDays; i += 1, day += gap) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + day);
-    dates.push(d.toISOString().slice(0, 10));
+  for (let week = 0; week < weeks; week += 1) {
+    const gap = Math.max(1, Math.floor(7 / Math.max(frequency, 1)));
+    let day = 0;
+    for (let i = 0; i < frequency && day < 7; i += 1) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + week * 7 + day);
+      dates.push(d.toISOString().slice(0, 10));
+      day += gap;
+    }
   }
   return dates;
 };

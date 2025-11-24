@@ -4,11 +4,12 @@ import { generateDailyTasks, buildWeeklySpreadDates } from './task-generator';
 
 export const scheduleSessions = (
   planId: string,
-  payload: TrainingPlanCreatePayload
+  payload: TrainingPlanCreatePayload,
+  weeks = 4
 ): WorkoutSessionCreatePayload[] => {
   const tasks = generateDailyTasks(payload);
   const perWeek = payload.weeklyFrequency ?? 3;
-  const dates = buildWeeklySpreadDates(payload.startDate, Math.max(perWeek, 1), 1);
+  const dates = buildWeeklySpreadDates(payload.startDate, Math.max(perWeek, 1), weeks);
 
   return dates.flatMap((scheduledDate) =>
     tasks.map((t) => ({

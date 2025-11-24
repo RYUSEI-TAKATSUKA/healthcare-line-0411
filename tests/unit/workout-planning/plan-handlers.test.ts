@@ -134,13 +134,13 @@ const run = async () => {
   assert.strictEqual(saveRes?.nextState?.currentFlow, null);
   assert.strictEqual(planRepo.saved.length, 1);
   assert.strictEqual(planRepo.saved[0].goalId, 'goal-1');
-  assert.strictEqual(sessionRepo.saved.length, 3 * 2); // 3日分 x 2タスク/日
+  assert.strictEqual(sessionRepo.saved.length, 3 * 4 * 2); // 4週 x 3日/週 x 2タスク/日
   const dates = sessionRepo.saved.map((s) => s.scheduledDate);
-  // 7日以内にスケジュールされているか
+  // 4週以内にスケジュールされているか
   const today = new Date();
   const withinAWeek = dates.every((d) => {
     const diff = (new Date(d).getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-    return diff >= -1 && diff <= 8; // タイムゾーン誤差を許容
+    return diff >= -1 && diff <= 29; // タイムゾーン誤差を許容
   });
   assert.ok(withinAWeek);
 

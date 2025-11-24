@@ -3,6 +3,7 @@ import { LineWebhookEvent } from 'src/types/line';
 import { GoalSessionData, GoalType } from '../types';
 import { GoalRepository } from '../repositories/goal-repository';
 import { buildTargetMetrics } from '../utils/goal-metrics-parser';
+import { ConversationRepository } from '../../shared/repositories/conversation-repository';
 
 const isTextEvent = (event: LineWebhookEvent): event is LineWebhookEvent & {
   type: 'message';
@@ -28,7 +29,7 @@ const inferGoalType = (text: string): GoalType => {
 };
 
 export const createGoalConfirmHandler =
-  (goalRepository: GoalRepository): EventHandler =>
+  (goalRepository: GoalRepository, conversationRepo?: ConversationRepository): EventHandler =>
   async (event, session) => {
     if (!isTextEvent(event)) return null;
     if (session.currentFlow !== 'goal_setting' || session.currentStep !== 'confirm_goal_draft') {
@@ -79,6 +80,19 @@ export const createGoalConfirmHandler =
           startDate,
           targetDate,
         });
+
+        if (conversationRepo) {
+          await conversationRepo.saveMessage({
+            userId,
+            messageType: 'system',
+            botMessage: 'goal_saved',
+            contextData: {
+              goalType,
+              startDate,
+              targetDate,
+            },
+          });
+        }
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('[goalConfirmHandler] failed to save goal', error);
