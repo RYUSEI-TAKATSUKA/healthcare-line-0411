@@ -21,4 +21,25 @@ export class SupabaseGoalRepository implements GoalRepository {
       throw error;
     }
   }
+
+  async findLatestActiveGoal(
+    userId: string
+  ): Promise<{ id: string; description: string } | null> {
+    const { data, error } = await this.client
+      .from('goals')
+      .select('id, description, created_at')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') return null;
+      throw error;
+    }
+
+    if (!data) return null;
+    return { id: data.id as string, description: data.description as string };
+  }
 }

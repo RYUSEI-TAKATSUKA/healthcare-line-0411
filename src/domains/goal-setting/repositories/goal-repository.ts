@@ -12,4 +12,5 @@ export interface CreateGoalPayload {
 
 export interface GoalRepository {
   createGoal(payload: CreateGoalPayload): Promise<void>;
+  findLatestActiveGoal(userId: string): Promise<{ id: string; description: string } | null>;
 }
